@@ -2,21 +2,28 @@ package com.example.demo;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.kafka.core.KafkaTemplate;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 public class KafkaProducerController {
 
     @Autowired
-    private KafkaTemplate<String, String> kafkaTemplate;
+    private KafkaTemplate<String, Object> kafkaTemplate;
 
-    private static final String TOPIC = "test-topic";
+    private static final String STRING_TOPIC = "string-topic";
+    private static final String ORDER_TOPIC = "order-topic";
 
-    @GetMapping("/publish")
-    public String publishMessage(@RequestParam("message") String message) {
-        kafkaTemplate.send(TOPIC, message);
-        return "Message sent to the Kafka topic '" + TOPIC + "'!";
+    // Endpoint to send a simple string message
+    @GetMapping("/publish/string")
+    public String publishStringMessage(@RequestParam("message") String message) {
+        kafkaTemplate.send(STRING_TOPIC, message);
+        return "String message sent to the Kafka topic: " + STRING_TOPIC;
+    }
+
+    // Endpoint to send an Order object
+    @PostMapping("/publish/order")
+    public String publishOrderMessage(@RequestBody Order order) {
+        kafkaTemplate.send(ORDER_TOPIC, order.getOrderId(), order);
+        return "Order sent to the Kafka topic: " + ORDER_TOPIC;
     }
 }
